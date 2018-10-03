@@ -1,7 +1,7 @@
 from itertools import product
 import math
 
-def solver(problem):
+def solver(problem, repetitive=False):
     colors = problem.get("colors")
     customers = problem.get("customers")
     demands = problem.get("demands")
@@ -18,7 +18,8 @@ def solver(problem):
                 matte[c] = color - 1
             else:
                 glossies[c].append(color - 1)
-    solved, solution = start_repetitive(colors, customers, glossies, matte)
+    starter = start_repetitive if repetitive else start
+    solved, solution = starter(colors, customers, glossies, matte)
     if solved:
         return " ".join(map(str, solution))
     else:

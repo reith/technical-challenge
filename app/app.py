@@ -30,6 +30,11 @@ def index():
     result = solver(input_val)
     return result
 
+@app.route('/v2/')
+def index_v2():
+    input_val = json.loads(request.args.get("input"))
+    result = solver(input_val, repetitive=True)
+    return result
 
 # To help with testing this endpoint will cause the app to crash
 # every time it is called
