@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 
 import sys
-import urllib.request
 import os
+import base64
+
 URL=os.environ.get('PAINTSHOP_URL', "0.0.0.0:8080/v1")
+
+try:
+    from urllib.request import Request, urlopen  # Python 3
+except ImportError:
+    from urllib2 import Request, urlopen
 
 def no_space_list(input_list):
     return '['+','.join(map(str, input_list))+']'
@@ -21,10 +27,13 @@ def process_content(content):
             demand = list(map(int, content[l+2].split()))
             customer_demand.append(demand)
         no_space_demands = '['+','.join(map(no_space_list, customer_demand))+']'
-        solution = urllib.request.urlopen("http://{}/?input={{\"colors\":{},\"customers\":{},\"demands\":{}}}".format(URL, number_of_colors, number_of_customers, no_space_demands)).read()
+        request_url = "http://{}/?input={{\"colors\":{},\"customers\":{},\"demands\":{}}}".format(URL, number_of_colors, number_of_customers, no_space_demands)
+        req = Request(request_url)
+        req.add_header('Authorization', b'Basic ' + base64.b64encode(b'reith:pass'))
+        solution = urlopen(req).read()
         output.append("Case #{}: {}".format(c + 1, solution.decode('utf-8')))
         content = content[number_of_customers + 2:]
-    return output	
+    return output
 
 def main(input_file):
     with open(input_file) as f:
