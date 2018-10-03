@@ -1,3 +1,5 @@
+from itertools import product
+
 def solver(problem):
     colors = problem.get("colors")
     customers = problem.get("customers")
@@ -15,7 +17,7 @@ def solver(problem):
                 matte[c] = color - 1
             else:
                 glossies[c].append(color - 1)
-    solved, solution = start(colors, customers, glossies, matte)
+    solved, solution = start_repetitive(colors, customers, glossies, matte)
     if solved:
         return " ".join(map(str, solution))
     else:
@@ -70,3 +72,19 @@ def reduce(solution_on_stack, change, customers, glossies, matte):
                 if sum(result_i) < sum(result):
                     result = result_i
     return solved, result
+
+def start_repetitive(colors, customers, glossies, matte):
+    """
+    This a non-recursive solution.  We test all possible solutions in a loop
+    so we won't hit by stack limit on huge and well-constrainted input
+    """
+    least_mattes = colors
+    result = None
+    possible_solutions = [list(g) for g in product([0, 1], repeat=colors)]
+    for solution_g in product([0, 1], repeat=colors):
+        solution = list(solution_g)
+        if check(solution, customers, glossies, matte):
+            if result is None or sum(solution) < least_mattes:
+                least_mattes = sum(solution)
+                result  = solution
+    return result is not None, result
