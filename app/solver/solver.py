@@ -1,4 +1,5 @@
 from itertools import product
+import math
 
 def solver(problem):
     colors = problem.get("colors")
@@ -81,10 +82,34 @@ def start_repetitive(colors, customers, glossies, matte):
     least_mattes = colors
     result = None
     possible_solutions = [list(g) for g in product([0, 1], repeat=colors)]
+    all_mattes = list(matte.values())
+    i = skip_next = 0
     for solution_g in product([0, 1], repeat=colors):
         solution = list(solution_g)
-        if check(solution, customers, glossies, matte):
-            if result is None or sum(solution) < least_mattes:
-                least_mattes = sum(solution)
-                result  = solution
+        if skip_next > 0:
+            skip_next -= 1
+        else:
+            can_skip, skip_count = could_skip_iteration(colors, all_mattes, i)
+            if can_skip:
+                skip_next = skip_count - 1
+            elif check(solution, customers, glossies, matte):
+                if result is None or sum(solution) < least_mattes:
+                    least_mattes = sum(solution)
+                    result  = solution
+        i += 1
     return result is not None, result
+
+def could_skip_iteration(colors, mattes, i):
+    """
+    Some iterations could be skipped since they can't result in a optimal
+    solutions.  For example we don't need make batch of mattes on a color if
+    no customer wants that color in matte.
+    """
+    if i == 0:
+        return False, 0
+    iter_log = math.log(i, 2)
+    new_matte_p = colors - int(iter_log) - 1 if iter_log.is_integer() else -1
+    if new_matte_p > 0 and new_matte_p not in mattes:
+        return True, i
+    else:
+        return False, 0
