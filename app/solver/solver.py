@@ -1,5 +1,12 @@
 from itertools import product
+from exc import ApiError
 import math
+
+class InputError(ApiError):
+    status = 400
+    def __init__(self, message):
+        super(InputError, self).__init__()
+        self.message = message
 
 def solver(problem, repetitive=False):
     colors = problem.get("colors")
@@ -9,12 +16,30 @@ def solver(problem, repetitive=False):
     glossies = []
     matte = {}
     for c in range(customers):
-        length = demands[c][0]
+        try:
+            length = demands[c][0]
+        except IndexError:
+            raise InputError("Customer #{} demands are not known".format(c+1))
         demand = demands[c][1:]
         glossies.append([])
+        if length * 2 != len(demand):
+            raise InputError(
+                "Customer #{} have {} demands but given {} colors and types"
+                .format(c+1, length, len(demand))
+            )
         for i in range(length):
             (color, is_matte) = (demand[2 * i], demand[2 * i + 1])
+            if not 1 <= color <= colors:
+                raise InputError(
+                    "Invalid color #{} for customer #{}"
+                    .format(color, color, c+1)
+                )
             if is_matte:
+                if matte.has_key(c):
+                    raise InputError(
+                        "Customer #{} has multiple matte choices: {}, {}"
+                        .format(c+1, matte[c]+1, color)
+                    )
                 matte[c] = color - 1
             else:
                 glossies[c].append(color - 1)

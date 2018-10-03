@@ -8,7 +8,8 @@ import argparse
 import random
 
 from solver.solver import solver
-from flask import Flask, request
+from exc import ApiError
+from flask import Flask, request, jsonify
 import json
 from prometheus_client import Counter, start_wsgi_server as prometheus_server
 
@@ -35,6 +36,12 @@ def index_v2():
     input_val = json.loads(request.args.get("input"))
     result = solver(input_val, repetitive=True)
     return result
+
+@app.errorhandler(ApiError)
+def show_api_error(error):
+    response = jsonify(error.to_dict())
+    response.status_code = error.status
+    return response
 
 # To help with testing this endpoint will cause the app to crash
 # every time it is called
