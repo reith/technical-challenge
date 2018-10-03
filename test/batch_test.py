@@ -4,7 +4,7 @@ import sys
 import os
 import base64
 
-URL=os.environ.get('PAINTSHOP_URL', "0.0.0.0:8080/v1")
+URL=os.environ.get('PAINTSHOP_URL', "0.0.0.0:8080/v2")
 
 try:
     from urllib.request import Request, urlopen  # Python 3
