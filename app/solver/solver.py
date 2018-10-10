@@ -107,7 +107,6 @@ def start_repetitive(colors, customers, glossies, matte):
     """
     least_mattes = colors
     result = None
-    possible_solutions = [list(g) for g in product([0, 1], repeat=colors)]
     all_mattes = list(matte.values())
     i = skip_next = 0
     for solution_g in product([0, 1], repeat=colors):
